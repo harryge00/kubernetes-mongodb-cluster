@@ -79,9 +79,7 @@ spec:
           mountPath: /data/db
       volumes:
       - name: mongo-persistent-storage1
-        gcePersistentDisk:
-          pdName: mongodb-disk1
-          fsType: ext4
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: ReplicationController
@@ -113,9 +111,7 @@ spec:
           mountPath: /data/db
         volumes:
         - name: mongo-persistent-storage2
-          gcePersistentDisk:
-            pdName: mongodb-disk2
-            fsType: ext4
+          emptyDir: {}
 ---
 apiVersion: v1
 kind: ReplicationController
@@ -147,6 +143,4 @@ spec:
             mountPath: /data/db
         volumes:
         - name: mongo-persistent-storage3
-          gcePersistentDisk:
-            pdName: mongodb-disk3
-            fsType: ext4
+          emptyDir: {}
