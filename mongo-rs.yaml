@@ -11,9 +11,9 @@ spec:
     targetPort: 27017
     protocol: TCP
     name: mongo-svc-a
-selector:
-  name: mongo-node1
-  instance: rod
+  selector:
+    name: mongo-node1
+    instance: rod
 ---
 apiVersion: v1
 kind: Service
@@ -109,9 +109,9 @@ spec:
         volumeMounts:
         - name: mongo-persistent-storage2
           mountPath: /data/db
-        volumes:
-        - name: mongo-persistent-storage2
-          emptyDir: {}
+      volumes:
+      - name: mongo-persistent-storage2
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: ReplicationController
@@ -128,19 +128,19 @@ spec:
       labels:
         name: mongo-node3
         instance: freddy
-      spec:
-        containers:
-        - name: mongo-node3
-          image: mongo
-          command:
-          - mongod
-          - "--replSet"
-          - my_replica_set
-          ports:
-          - containerPort: 27017
-          volumeMounts:
-          - name: mongo-persistent-storage3
-            mountPath: /data/db
-        volumes:
+    spec:
+      containers:
+      - name: mongo-node3
+        image: mongo
+        command:
+        - mongod
+        - "--replSet"
+        - my_replica_set
+        ports:
+        - containerPort: 27017
+        volumeMounts:
         - name: mongo-persistent-storage3
-          emptyDir: {}
+          mountPath: /data/db
+      volumes:
+      - name: mongo-persistent-storage3
+        emptyDir: {}
