@@ -1,2 +1,3 @@
 config-kube
-
+config-mongo
+run.sh
