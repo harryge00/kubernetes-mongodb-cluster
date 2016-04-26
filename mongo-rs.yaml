@@ -6,6 +6,7 @@ metadata:
     name: mongo-svc-a
 spec:
   type: LoadBalancer
+  clusterIP: None
   ports:
   - port: 27017
     targetPort: 27017
@@ -23,6 +24,7 @@ metadata:
     name: mongo-svc-b
 spec:
   type: LoadBalancer
+  clusterIP: None
   ports:
   - port: 27017
     targetPort: 27017
@@ -40,6 +42,7 @@ metadata:
     name: mongo-svc-c
 spec:
   type: LoadBalancer
+  clusterIP: None
   ports:
   - port: 27017
     targetPort: 27017
@@ -67,7 +70,7 @@ spec:
     spec:
       containers:
       - name: mongo-node1
-        image: mongo
+        image: index.caicloud.io/caicloud/mongo:3.0.5
         command:
         - mongod
         - "--replSet"
@@ -99,7 +102,7 @@ spec:
     spec:
       containers:
       - name: mongo-node2
-        image: mongo
+        image: index.caicloud.io/caicloud/mongo:3.0.5
         command:
         - mongod
         - "--replSet"
@@ -131,7 +134,7 @@ spec:
     spec:
       containers:
       - name: mongo-node3
-        image: mongo
+        image: index.caicloud.io/caicloud/mongo:3.0.5
         command:
         - mongod
         - "--replSet"
