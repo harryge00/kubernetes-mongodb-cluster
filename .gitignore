@@ -1,3 +1,4 @@
 config-kube
 config-mongo
 run.sh
+kubernetes-web-mongo-sample
