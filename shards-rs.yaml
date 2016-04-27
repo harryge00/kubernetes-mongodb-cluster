@@ -1,0 +1,132 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc-shardsctl
+  labels:
+    name: mongo-svc-shardsctl
+spec:
+  clusterIP: None
+  ports:
+  - port: 27017
+    targetPort: 27017
+    protocol: TCP
+    name: mongo-svc-shardsctl
+  selector:
+    name: mongos-node
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mongos-rc
+  labels:
+    name: mongos-rc
+spec:
+  replicas: 1
+  selector:
+    name: mongos-node
+  template:
+    metadata:
+      labels:
+        name: mongos-node
+    spec:
+      containers:
+      - name: mongos-node
+        image: index.caicloud.io/caicloud/mongo:3.2
+        command:
+        - mongos
+        - "--configdb"
+        - "configReplSet/mongo-svc-configsvr-a:27019,mongo-svc-configsvr-b:27019,mongo-svc-configsvr-c:27019"
+        ports:
+        - containerPort: 27017
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc-shard-db-a
+  labels:
+    name: mongo-svc-shard-db-a
+spec:
+  type: LoadBalancer
+  clusterIP: None
+  ports:
+  - port: 27017
+    targetPort: 27017
+    protocol: TCP
+    name: mongo-svc-shard-db-a
+  selector:
+    name: mongo-db-a
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mongo-rc-shard-db-a
+  labels:
+    name: mongo-rc-shard
+spec:
+  replicas: 1
+  selector:
+    name: mongo-db-a
+  template:
+    metadata:
+      labels:
+        name: mongo-db-a
+    spec:
+      containers:
+      - name: mongo-shard-db-a
+        image: index.caicloud.io/caicloud/mongo:3.2
+        command:
+        - mongod
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-persistent-storage-a
+          mountPath: /data/db
+      volumes:
+      - name: mongo-persistent-storage-a
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc-shard-db-b
+  labels:
+    name: mongo-svc-shard-db-b
+spec:
+  type: LoadBalancer
+  clusterIP: None
+  ports:
+  - port: 27017
+    targetPort: 27017
+    protocol: TCP
+    name: mongo-svc-shard-db-b
+  selector:
+    name: mongo-db-b
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mongo-rc-shard-db-b
+  labels:
+    name: mongo-rc-shard
+spec:
+  replicas: 1
+  selector:
+    name: mongo-db-b
+  template:
+    metadata:
+      labels:
+        name: mongo-db-b
+    spec:
+      containers:
+      - name: mongo-shard-db-a
+        image: index.caicloud.io/caicloud/mongo:3.2
+        command:
+        - mongod
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-persistent-storage-b
+          mountPath: /data/db
+      volumes:
+      - name: mongo-persistent-storage-b
+        emptyDir: {}

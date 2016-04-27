@@ -1,0 +1,184 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc-configsvr-a
+  labels:
+    name: mongo-svc-configsvr-a
+spec:
+  clusterIP: None
+  ports:
+  - port: 27019
+    targetPort: 27019
+    protocol: TCP
+    name: mongo-svc-configsvr-a
+  selector:
+    name: mongo-shard-node1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc-configsvr-b
+  labels:
+    name: mongo-svc-configsvr-b
+spec:
+  clusterIP: None
+  ports:
+  - port: 27019
+    targetPort: 27019
+    protocol: TCP
+    name: mongo-svc-configsvr-b
+  selector:
+    name: mongo-shard-node2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc-configsvr-c
+  labels:
+    name: mongo-svc-configsvr-c
+spec:
+  clusterIP: None
+  ports:
+  - port: 27019
+    targetPort: 27019
+    protocol: TCP
+    name: mongo-svc-configsvr-c
+  selector:
+    name: mongo-shard-node3
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-svc-shardsctl
+  labels:
+    name: mongo-svc-shardsctl
+spec:
+  clusterIP: None
+  ports:
+  - port: 27017
+    targetPort: 27017
+    protocol: TCP
+    name: mongo-svc-shardsctl
+  selector:
+    name: mongos-node
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mongo-shard-rc1
+  labels:
+    name: mongo-shard-rc
+spec:
+  replicas: 1
+  selector:
+    name: mongo-shard-node1
+  template:
+    metadata:
+      labels:
+        name: mongo-shard-node1
+    spec:
+      containers:
+      - name: mongo-shard-node1
+        image: index.caicloud.io/caicloud/mongo:3.2
+        command:
+        - mongod
+        - "--configsvr"
+        - "--replSet"
+        - configReplSet
+        ports:
+        - containerPort: 27019
+        volumeMounts:
+        - name: mongo-persistent-storage1
+          mountPath: /data/db
+      volumes:
+      - name: mongo-persistent-storage1
+        emptyDir: {}
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mongo-shard-rc2
+  labels:
+    name: mongo-shard-rc
+spec:
+  replicas: 1
+  selector:
+    name: mongo-shard-node2
+  template:
+    metadata:
+      labels:
+        name: mongo-shard-node2
+    spec:
+      containers:
+      - name: mongo-shard-node2
+        image: index.caicloud.io/caicloud/mongo:3.2
+        command:
+        - mongod
+        - "--configsvr"
+        - "--replSet"
+        - configReplSet
+        ports:
+        - containerPort: 27019
+        volumeMounts:
+        - name: mongo-persistent-storage2
+          mountPath: /data/db
+      volumes:
+      - name: mongo-persistent-storage2
+        emptyDir: {}
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mongo-shard-rc3
+  labels:
+    name: mongo-shard-rc
+spec:
+  replicas: 1
+  selector:
+    name: mongo-shard-node3
+  template:
+    metadata:
+      labels:
+        name: mongo-shard-node3
+    spec:
+      containers:
+      - name: mongo-shard-node3
+        image: index.caicloud.io/caicloud/mongo:3.2
+        command:
+        - mongod
+        - "--configsvr"
+        - "--replSet"
+        - configReplSet
+        ports:
+        - containerPort: 27019
+        volumeMounts:
+        - name: mongo-persistent-storage3
+          mountPath: /data/db
+      volumes:
+      - name: mongo-persistent-storage3
+        emptyDir: {}
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mongos-rc
+  labels:
+    name: mongos-rc
+spec:
+  replicas: 1
+  selector:
+    name: mongos-node
+  template:
+    metadata:
+      labels:
+        name: mongos-node
+    spec:
+      containers:
+      - name: mongos-node
+        image: index.caicloud.io/caicloud/mongo:3.2
+        command:
+        - mongod
+        - "--configdb"
+        - "configReplSet/mongo-svc-configsvr-a:27019,mongo-svc-configsvr-b:27019,mongo-svc-configsvr-c:27019"
+        ports:
+        - containerPort: 27017
