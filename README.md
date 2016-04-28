@@ -12,8 +12,15 @@ Note: Since Kubernetes v1.2 has a [bug](https://github.com/kubernetes/kubernetes
 
 # Availability
 
-If less than half of all the pods are killed, the replica set can still work. If all of them are deleted, to re-initialize them, run `kubectl create -f mongo-replica-starter-rc.yaml`.
+If less than half of all the pods are killed, the replica set can still work. To re-initialize them, run `kubectl create -f mongo-replica-starter-rc.yaml`.
 
 # Options for users (TODO):
 
 Users can select the number of replica nodes, whether to use arbiter, service name...
+
+# To start a MongoDB sharded cluster
+
+`./run_shards.sh` 
+It will deploy 3 config servers in replica set, and a `mongos` instance as controller.
+
+Then you can connect to `mongos` and add mongo instances as shards. e.g., Add replica set as one shard: `sh.addShard("my_replica_set/mongo-replica-svc-a")`
