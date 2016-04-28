@@ -1,75 +1,73 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo-svc-a
+  name: mongo-cfgsvr-svc-a
   labels:
-    name: mongo-svc-a
+    name: mongo-cfgsvr-svc-a
 spec:
   clusterIP: None
   ports:
-  - port: 27017
-    targetPort: 27017
+  - port: 27019
+    targetPort: 27019
     protocol: TCP
-    name: mongo-svc-a
   selector:
-    name: mongo-node1
+    name: mongo-configsvr-node1
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo-svc-b
+  name: mongo-cfgsvr-svc-b
   labels:
-    name: mongo-svc-b
+    name: mongo-cfgsvr-svc-b
 spec:
   clusterIP: None
   ports:
-  - port: 27017
-    targetPort: 27017
+  - port: 27019
+    targetPort: 27019
     protocol: TCP
-    name: mongo-svc-b
   selector:
-    name: mongo-node2
+    name: mongo-configsvr-node2
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo-svc-c
+  name: mongo-cfgsvr-svc-c
   labels:
-    name: mongo-svc-c
+    name: mongo-cfgsvr-svc-c
 spec:
   clusterIP: None
   ports:
-  - port: 27017
-    targetPort: 27017
+  - port: 27019
+    targetPort: 27019
     protocol: TCP
-    name: mongo-svc-c
   selector:
-    name: mongo-node3
+    name: mongo-configsvr-node3
 ---
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: mongo-rc1
+  name: mongo-configsvr-rc1
   labels:
-    name: mongo-rc
+    name: mongo-configsvr-rc
 spec:
   replicas: 1
   selector:
-    name: mongo-node1
+    name: mongo-configsvr-node1
   template:
     metadata:
       labels:
-        name: mongo-node1
+        name: mongo-configsvr-node1
     spec:
       containers:
-      - name: mongo-node1
+      - name: mongo-configsvr-node1
         image: index.caicloud.io/caicloud/mongo:3.2
         command:
         - mongod
+        - "--configsvr"
         - "--replSet"
-        - my_replica_set
+        - configReplSet
         ports:
-        - containerPort: 27017
+        - containerPort: 27019
         volumeMounts:
         - name: mongo-persistent-storage1
           mountPath: /data/db
@@ -80,27 +78,28 @@ spec:
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: mongo-rc2
+  name: mongo-configsvr-rc2
   labels:
-    name: mongo-rc
+    name: mongo-configsvr-rc
 spec:
   replicas: 1
   selector:
-    name: mongo-node2
+    name: mongo-configsvr-node2
   template:
     metadata:
       labels:
-        name: mongo-node2
+        name: mongo-configsvr-node2
     spec:
       containers:
-      - name: mongo-node2
+      - name: mongo-configsvr-node2
         image: index.caicloud.io/caicloud/mongo:3.2
         command:
         - mongod
+        - "--configsvr"
         - "--replSet"
-        - my_replica_set
+        - configReplSet
         ports:
-        - containerPort: 27017
+        - containerPort: 27019
         volumeMounts:
         - name: mongo-persistent-storage2
           mountPath: /data/db
@@ -111,27 +110,28 @@ spec:
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: mongo-rc3
+  name: mongo-configsvr-rc3
   labels:
-    name: mongo-rc
+    name: mongo-configsvr-rc
 spec:
   replicas: 1
   selector:
-    name: mongo-node3
+    name: mongo-configsvr-node3
   template:
     metadata:
       labels:
-        name: mongo-node3
+        name: mongo-configsvr-node3
     spec:
       containers:
-      - name: mongo-node3
+      - name: mongo-configsvr-node3
         image: index.caicloud.io/caicloud/mongo:3.2
         command:
         - mongod
+        - "--configsvr"
         - "--replSet"
-        - my_replica_set
+        - configReplSet
         ports:
-        - containerPort: 27017
+        - containerPort: 27019
         volumeMounts:
         - name: mongo-persistent-storage3
           mountPath: /data/db

@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-shardsctl-svc
+  labels:
+    name: mongo-shardsctl-svc
+spec:
+  clusterIP: None
+  ports:
+  - port: 27017
+    targetPort: 27017
+    protocol: TCP
+  selector:
+    name: mongo-shardsctl
+---
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mongo-shardsctl-rc
+  labels:
+    name: mongo-shardsctl-rc
+spec:
+  replicas: 1
+  selector:
+    name: mongo-shardsctl
+  template:
+    metadata:
+      labels:
+        name: mongo-shardsctl
+    spec:
+      containers:
+      - name: mongo-shardsctl
+        image: index.caicloud.io/caicloud/mongo:3.2
+        command:
+        - mongos
+        - "--configdb"
+        - "configReplSet/mongo-cfgsvr-svc-a:27019,mongo-cfgsvr-svc-a:27019,mongo-cfgsvr-svc-a:27019"
+        ports:
+        - containerPort: 27017

@@ -1,4 +1,6 @@
 config-kube
+docker
+db
 config-mongo
 run.sh
 kubernetes-web-mongo-sample

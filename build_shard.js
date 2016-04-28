@@ -6,3 +6,4 @@ rs.initiate({
 	{ _id:1, host:"mongo-svc-configsvr-b:27019"  },
 	{ _id:2, host:"mongo-svc-configsvr-c:27019"  }
 ]});
+rs.

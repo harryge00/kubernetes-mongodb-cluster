@@ -1,0 +1,24 @@
+apiVersion: v1
+kind: ReplicationController
+metadata:
+  name: mongo-shards-starter
+  labels:
+    name: mongo-shards-rc
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: mongo-shards-starter
+    spec:
+      containers:
+      - name: mongo-shards-starter
+        image: index.caicloud.io/caicloud/mongo:shards-starter3 #this image has .js which initialize the Replica set
+        ports:
+        - containerPort: 27017
+        volumeMounts:
+        - name: mongo-shards-starter-storage
+          mountPath: /data/db
+      volumes:
+      - name: mongo-shards-starter-storage
+        emptyDir: {}
