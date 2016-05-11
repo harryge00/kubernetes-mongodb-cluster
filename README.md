@@ -40,6 +40,7 @@ spec:
       - name: mongo-replica-storage1
         emptyDir: {}
 ```
+You can change "index.caicloud.io/caicloud/mongo:3.2" to any mongo's docker image supports replica-set.
 One mongo service yaml:
 ```
 apiVersion: v1
