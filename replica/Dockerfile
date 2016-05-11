@@ -1,3 +1,4 @@
 FROM mongo:latest
-CMD ["mongos","--configdb", "configReplSet/localhost:27012,localhost:27013,localhost:27014"]
+COPY build_replica.js /
+CMD ["mongo","--host", "mongo-replica-svc-a", "<", "/build_replica.js"]
 EXPOSE 27017
