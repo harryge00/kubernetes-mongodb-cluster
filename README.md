@@ -84,7 +84,10 @@ Run `rs.status()` to check the status of replica set.
 
 #### Automatical initialization of the replica set
 
-This is done in a hacky way: I build a docker image based on `mongo:3.2` which connects to one of the 3 mongo services and do 
+`kubectl exec -ti mongo-replica-rc1-dsw20 mongo < replica/build_replica.js`
+
+build_replica.js:
+
 ```
 rs.initiate({_id:"my_replica_set", members:
   [{ _id:0, host:"mongo-replica-svc-a" },
@@ -92,10 +95,6 @@ rs.initiate({_id:"my_replica_set", members:
   { _id:2, host:"mongo-replica-svc-c" }
 ]})
 ```
-Then killed this container...
-
-The so-called "run by one shell":
-`./replica/run_replica.sh`
 
 #### Issue
 Note: Since Kubernetes v1.2 has a [bug](https://github.com/kubernetes/kubernetes/issues/19930) that a pod cannot connect to itself via its service's cluster IP. I used `headless` services, which means all services do not have cluster IP and can be accessed only inside K8s cluster through service name like `mongo-replica-svc-a`. E.g. `mongodb://service-name:27017/test`
