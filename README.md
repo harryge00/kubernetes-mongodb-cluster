@@ -67,26 +67,24 @@ To start them, run
 
 ### Manual initialization of the replica set
 
-After the 3 mongo replication controllers have been created and finished initialzation, execute commands in one containers:
-
-`kubectl exec -ti mongo-replica-rc1-dsw20 bash ` (run `kubectl get pods` first to get the pod name)
-
+After the 3 mongo replication controllers have been created and finished initialzation, run `kubectl get pods` first to get the pod name.
+If the pod name is `mongo-replica-rc1-dsw20`:
 ```
-root@mongo-replica-rc1-dsw20:/# mongo
+kubectl exec -ti mongo-replica-rc1-dsw20 mongo
 > rs.initiate({_id:"my_replica_set", members:
   [{ _id:0, host:"mongo-replica-svc-a" },
   { _id:1, host:"mongo-replica-svc-b" },
   { _id:2, host:"mongo-replica-svc-c" }
 ]});
 ```
-If mongo shell returns `{ "ok" : 1 }`, congratulations!
+If mongo shell returns `{ "ok" : 1 }`, congratulations, a mongo replica set has been built!
 Run `rs.status()` to check the status of replica set.
 
-#### Automatical initialization of the replica set
+### Automatical initialization of the replica set
 
-`kubectl exec -ti mongo-replica-rc1-dsw20 mongo < replica/build_replica.js`
+`kubectl exec -ti mongo-replica-rcX-ABC123 mongo < replica/build_replica.js`
 
-build_replica.js:
+build_replica.js does the same as the previous mongo shell:
 
 ```
 rs.initiate({_id:"my_replica_set", members:
@@ -95,15 +93,13 @@ rs.initiate({_id:"my_replica_set", members:
   { _id:2, host:"mongo-replica-svc-c" }
 ]})
 ```
+In general, the member who runs `rs.initiate()` will become the primary one.
 
-#### Issue
-Note: Since Kubernetes v1.2 has a [bug](https://github.com/kubernetes/kubernetes/issues/19930) that a pod cannot connect to itself via its service's cluster IP. I used `headless` services, which means all services do not have cluster IP and can be accessed only inside K8s cluster through service name like `mongo-replica-svc-a`. E.g. `mongodb://service-name:27017/test`
+### Use mongo
 
-#### Partition tolerance
+Use `kubectl exec -ti mongo-replica-rcX-ABC123 mongo` to enter the Xth member of replica set.
 
-If less than half of all the repliction controllers are killed, the replica set can still work. If the number of replica set members are even, you may add a mongodb arbiter to create an "imbalance".
-
-#### Driver connectting to mongo 
+#### Use driver to connect to mongo cluster
 For example: node.js
 ```
 var connectionString = 'mongodb://mongo-replica-svc-a:27017,mongo-replica-svc-b:27017,mongo-replica-svc-c:27017/your_db?replicaSet=my_replica_set' +
@@ -111,9 +107,13 @@ var connectionString = 'mongodb://mongo-replica-svc-a:27017,mongo-replica-svc-b:
 MongoClient.connect(connectionString, callback)
 ```
 
-#### Options for users (TODO):
+### Issue
+Note: Since Kubernetes v1.2 has a [bug](https://github.com/kubernetes/kubernetes/issues/19930) that a pod cannot connect to itself via its service's cluster IP. I used `headless` services, which means all services do not have cluster IP and can be accessed only inside K8s cluster through service name like `mongo-replica-svc-a`. E.g. `mongodb://service-name:27017/test`
+* If the number of replica set members are even, you may add a mongodb arbiter to create an "imbalance" (optional).
 
-Users can select the number of replica nodes and determine service/rc name...
+### TODO:
+
+Currently the name of RC and services are hard coded in yaml. Later, users can choose the number of replica nodes and determine service/rc name...
 
 # MongoDB sharded cluster
 
