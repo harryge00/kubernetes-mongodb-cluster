@@ -1,0 +1,31 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ mongo_node_name }}
+  labels:
+    name: {{ mongo_node_name }}
+    kubernetes-admin.caicloud.io/type: solution
+    kubernetes-admin.caicloud.io/solution: {{ solution_name }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: {{ mongo_node_name }}
+      kubernetes-admin.caicloud.io/type: solution
+      kubernetes-admin.caicloud.io/solution: {{ solution_name }}
+  template:
+    metadata:
+      labels:
+        name: {{ mongo_node_name }}
+        kubernetes-admin.caicloud.io/type: solution
+        kubernetes-admin.caicloud.io/solution: {{ solution_name }}
+    spec:
+      containers:
+      - name: mongo
+        image: index.caicloud.io/caicloud/mongo:v3.2.0
+        ports:
+        - containerPort: 27017
+        command:
+        - mongod
+        - "--replSet"
+        - {{ mongo_replica_set_name }}

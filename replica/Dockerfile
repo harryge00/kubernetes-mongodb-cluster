@@ -1,6 +1,13 @@
-#Deprecated, we can use "kubectl exec" to do mongo initialzation
+# mongo-cluster
 FROM mongo:latest
-COPY build_replica.js /
-COPY start_replica.sh /
-CMD /start_replica.sh
+
 EXPOSE 27017
+
+RUN mkdir -p /opt/mongo/ && \
+	apt-get update && apt-get install -y netcat
+
+COPY start_replica.sh /opt/mongo/
+
+WORKDIR /opt/mongo
+
+CMD /opt/mongo/start_replica.sh

@@ -2,48 +2,48 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo-replica-svc-a
+  name: mongo-node-1
   labels:
-    name: mongo-replica-svc-a
+    name: mongo-node-1
 spec:
   clusterIP: None
   ports:
   - port: 27017
     targetPort: 27017
     protocol: TCP
-    name: mongo-replica-svc-a
+    name: mongo-node-1
   selector:
     name: mongo-replica-node1
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo-replica-svc-b
+  name: mongo-node-b
   labels:
-    name: mongo-replica-svc-b
+    name: mongo-node-b
 spec:
   clusterIP: None
   ports:
   - port: 27017
     targetPort: 27017
     protocol: TCP
-    name: mongo-replica-svc-b
+    name: mongo-node-b
   selector:
     name: mongo-replica-node2
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo-replica-svc-c
+  name: mongo-node-c
   labels:
-    name: mongo-replica-svc-c
+    name: mongo-node-c
 spec:
   clusterIP: None
   ports:
   - port: 27017
     targetPort: 27017
     protocol: TCP
-    name: mongo-replica-svc-c
+    name: mongo-node-c
   selector:
     name: mongo-replica-node3
 ---
@@ -65,10 +65,6 @@ spec:
       containers:
       - name: mongo-replica-node1
         image: index.caicloud.io/caicloud/mongo:3.2
-        command:
-        - mongod
-        - "--replSet"
-        - my_replica_set
         ports:
         - containerPort: 27017
         volumeMounts:
@@ -96,10 +92,6 @@ spec:
       containers:
       - name: mongo-replica-node2
         image: index.caicloud.io/caicloud/mongo:3.2
-        command:
-        - mongod
-        - "--replSet"
-        - my_replica_set
         ports:
         - containerPort: 27017
         volumeMounts:
@@ -127,10 +119,6 @@ spec:
       containers:
       - name: mongo-replica-node3
         image: index.caicloud.io/caicloud/mongo:3.2
-        command:
-        - mongod
-        - "--replSet"
-        - my_replica_set
         ports:
         - containerPort: 27017
         volumeMounts:
