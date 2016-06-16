@@ -7,7 +7,6 @@ echo $mongo_node_name
 content="rs.initiate({_id:"
 content="$content \"$mongo_replica_set_name\", members: [{_id:0, host:\"${mongo_node_name}0\" }"
 for i in $(eval echo {1..$mongo_nodes_number}); do
-	echo $i
 	mongo_members="${mongo_members}, { _id:$i, host:\"$mongo_node_name$i\" }"
 done;
 content="$content $mongo_members]});"
