@@ -4,101 +4,75 @@ Based on [Enabling Microservices: Containers & Orchestration Explained](https://
 
 # MongoDB replica set
 
-`replica/mongo-replica-rs.yaml` creates 3 mongodb replication controllers their corresponding services. The 3 mongodb instances can consist a replica set named as "my_replica_set".
+`replica/mongo-replica-rs.yaml` creates 3 mongodb replication controllers and their corresponding services. The 3 mongodb instances can consist a replica set named as "my_replica_set". 
 
 One of mongodb replication controller's yaml:
 ```
 apiVersion: v1
 kind: ReplicationController
 metadata:
-  name: mongo-replica-rc1
+  name: mongo-replica-rc0
   labels:
     name: mongo-replica-rc
 spec:
   replicas: 1
   selector:
-    name: mongo-replica-node1
+    name: mongo-replica-node0
   template:
     metadata:
       labels:
-        name: mongo-replica-node1
+        name: mongo-replica-node0
     spec:
       containers:
-      - name: mongo-replica-node1
+      - name: mongo-replica-node0
         image: hyge/mongo-cluster
-        command:
-        - mongod
-        - "--replSet"
-        - my_replica_set
+        env:
+          - name: mongo_node_name
+            value: mongo-replica-node
+          - name: mongo_nodes_number
+            value: "3"
+          - name: mongo_replica_set_name
+            value: my_replica_set
         ports:
         - containerPort: 27017
         volumeMounts:
-        - name: mongo-replica-storage1
+        - name: mongo-replica-storage0
           mountPath: /data/db
       volumes:
-
-      - name: mongo-replica-storage1
+      - name: mongo-replica-storage0
         emptyDir: {}
 ```
+* To scale nodes of the mongo replica, promote the environmental variable "mongo_nodes_number". 
+* Environmental variable "mongo_replica_set_name" is the name of replica set.
+* Environmental variable "mongo_node_name" is the name prefix for each node. The suffix of the name will be "Nth" number. It must match k8s svc's name.
+* See `replica/start_replica.sh` and `replica/Dockerfile` for more details.
+
 One mongo service yaml:
 ```
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo-replica-svc-a
+  name: mongo-replica-node0
   labels:
-    name: mongo-replica-svc-a
+    name: mongo-svc
 spec:
   clusterIP: None
   ports:
   - port: 27017
     targetPort: 27017
     protocol: TCP
-    name: mongo-replica-svc-a
+    name: mongo-svc-port
   selector:
-    name: mongo-replica-node1
+    name: mongo-replica-node0
 ```
 
 ## How to deploy a replica set
 
-To start them, run 
+To start a 3 node mongo rs, run 
 `kubectl create -f ./replica/mongo-replica-rs.yaml`
 
-### Manual initialization of the replica set
-
-After the 3 mongo replication controllers have been created and finished initialzation, run `kubectl get pods` first to get the pod name.
-If the pod name is `mongo-replica-rc1-dsw20`:
-```
-kubectl exec -ti mongo-replica-rc1-dsw20 mongo
-> rs.initiate({_id:"my_replica_set", members:
-  [{ _id:0, host:"mongo-replica-svc-a" },
-  { _id:1, host:"mongo-replica-svc-b" },
-  { _id:2, host:"mongo-replica-svc-c" }
-]});
-```
-If mongo shell returns `{ "ok" : 1 }`, congratulations, a mongo replica set has been built!
-Run `rs.status()` to check the status of replica set.
-
-### Automatical initialization of the replica set
-
-`kubectl exec -ti mongo-replica-rcX-ABC123 mongo < replica/build_replica.js`
-
-build_replica.js does the same as the previous mongo shell:
-
-```
-rs.initiate({_id:"my_replica_set", members:
-  [{ _id:0, host:"mongo-replica-svc-a" },
-  { _id:1, host:"mongo-replica-svc-b" },
-  { _id:2, host:"mongo-replica-svc-c" }
-]})
-```
-In general, the member who runs `rs.initiate()` will become the primary one.
-
-### Use mongo
-
-Use `kubectl exec -ti mongo-replica-rcX-ABC123 mongo` to enter the Xth member of replica set.
-
 #### Use driver to connect to mongo cluster
+
 For example: node.js
 ```
 var connectionString = 'mongodb://mongo-replica-svc-a:27017,mongo-replica-svc-b:27017,mongo-replica-svc-c:27017/your_db?replicaSet=my_replica_set' +
@@ -107,12 +81,10 @@ MongoClient.connect(connectionString, callback)
 ```
 
 ### Issue
-Note: Since Kubernetes v1.2 has a [bug](https://github.com/kubernetes/kubernetes/issues/19930) that a pod cannot connect to itself via its service's cluster IP. I used `headless` services, which means all services do not have cluster IP and can be accessed only inside K8s cluster through service name like `mongo-replica-svc-a`. E.g. `mongodb://service-name:27017/test`
+
+Update: The bug has been fixed since k8s v1.2.4.
+Note: Before Kubernetes v1.2.4 has a [bug](https://github.com/kubernetes/kubernetes/issues/19930) that a pod cannot connect to itself via its service's cluster IP. I used `headless` services, which means all services do not have cluster IP and can be accessed only inside K8s cluster through service name like `mongo-replica-svc-a`. E.g. `mongodb://service-name:27017/test`
 * If the number of replica set members are even, you may add a mongodb arbiter to create an "imbalance" (optional).
-
-### TODO:
-
-Currently the name of RC and services are hard coded in yaml. Later, users can choose the number of replica nodes and determine service/rc name...
 
 # MongoDB sharded cluster
 
