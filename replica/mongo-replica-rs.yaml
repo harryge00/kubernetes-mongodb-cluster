@@ -2,9 +2,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo-node-1
+  name: mongo-node-a
   labels:
-    name: mongo-node-1
+    name: mongo-node-a
 spec:
   clusterIP: None
   ports:
@@ -64,7 +64,7 @@ spec:
     spec:
       containers:
       - name: mongo-replica-node1
-        image: index.caicloud.io/caicloud/mongo:3.2
+        image: hyge/mongo-cluster
         command:
         - mongod
         - "--replSet"
@@ -95,7 +95,7 @@ spec:
     spec:
       containers:
       - name: mongo-replica-node2
-        image: index.caicloud.io/caicloud/mongo:3.2
+        image: hyge/mongo-cluster
         command:
         - mongod
         - "--replSet"
@@ -126,7 +126,7 @@ spec:
     spec:
       containers:
       - name: mongo-replica-node3
-        image: index.caicloud.io/caicloud/mongo:3.2
+        image: hyge/mongo-cluster
         command:
         - mongod
         - "--replSet"

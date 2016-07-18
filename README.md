@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
       - name: mongo-replica-node1
-        image: index.caicloud.io/caicloud/mongo:3.2
+        image: hyge/mongo-cluster
         command:
         - mongod
         - "--replSet"
@@ -40,7 +40,6 @@ spec:
       - name: mongo-replica-storage1
         emptyDir: {}
 ```
-You can change "index.caicloud.io/caicloud/mongo:3.2" to any mongo's docker image supports replica-set.
 One mongo service yaml:
 ```
 apiVersion: v1
