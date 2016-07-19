@@ -52,7 +52,7 @@ One mongo service yaml:
 apiVersion: v1
 kind: Service
 metadata:
-  name: mongo-replica-node0
+  name: mongo-replica-node-0
   labels:
     name: mongo-svc
 spec:

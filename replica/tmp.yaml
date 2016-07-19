@@ -1,0 +1,48 @@
+#3 mongodb instances consist a replica set : "my_replica_set"
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-replica-node-0
+  labels:
+    name: mongo-svc
+spec:
+  clusterIP: None
+  ports:
+  - port: 27017
+    targetPort: 27017
+    protocol: TCP
+    name: mongo-svc-port
+  selector:
+    name: mongo-replica-node0
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-replica-node-1
+  labels:
+    name: mongo-svc
+spec:
+  clusterIP: None
+  ports:
+  - port: 27017
+    targetPort: 27017
+    protocol: TCP
+    name: mongo-svc-port
+  selector:
+    name: mongo-replica-node1
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-replica-node-2
+  labels:
+    name: mongo-svc
+spec:
+  clusterIP: None
+  ports:
+  - port: 27017
+    targetPort: 27017
+    protocol: TCP
+    name: mongo-svc-port
+  selector:
+    name: mongo-replica-node2
